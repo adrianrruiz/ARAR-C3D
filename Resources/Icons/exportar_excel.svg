@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <title>Exportar tablas a Excel</title>
+  <!-- Hoja de cálculo -->
+  <rect x="9" y="3" width="21" height="26" rx="2" fill="#FFFFFF" stroke="#1F2933" stroke-width="1.6"/>
+  <rect x="9" y="3" width="21" height="6" rx="2" fill="#1E7145" stroke="#1F2933" stroke-width="1.6"/>
+  <line x1="9" y1="15" x2="30" y2="15" stroke="#1F2933" stroke-width="1.2"/>
+  <line x1="9" y1="21" x2="30" y2="21" stroke="#1F2933" stroke-width="1.2"/>
+  <line x1="20" y1="9" x2="20" y2="29" stroke="#1F2933" stroke-width="1.2"/>
+  <rect x="22" y="11" width="5" height="2" fill="#7B8794"/>
+  <rect x="22" y="17" width="5" height="2" fill="#7B8794"/>
+  <rect x="22" y="23" width="5" height="2" fill="#7B8794"/>
+  <!-- Letra X de Excel -->
+  <g fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round">
+    <line x1="13" y1="4.8" x2="17" y2="8.2"/>
+    <line x1="17" y1="4.8" x2="13" y2="8.2"/>
+  </g>
+  <!-- Flecha de exportación -->
+  <path d="M2 20 H8.5 V16.5 L14.5 22 L8.5 27.5 V24 H2 Z" fill="#1F4E79" stroke="#0F2A44" stroke-width="1" stroke-linejoin="round"/>
+</svg>

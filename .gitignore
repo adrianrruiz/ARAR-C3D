@@ -1,0 +1,63 @@
+## Visual Studio / Rider / VS Code
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.slnx.user
+
+## .NET / C# Build outputs
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Ll]og/
+[Ll]ogs/
+
+## .NET CLI local / NuGet caches
+.dotnet-cli/
+.dotnet-cli-home/
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+artifacts/
+packages/
+
+## Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+*.coverage
+*.coveragexml
+
+## Instalador / Artefactos generados y certificados
+Installer/Output/
+Installer/Payload/
+*.exe
+*.msi
+*.p12
+*.pfx
+
+## Archivos CAD, temporales y de prueba (no subir archivos pesados o de trabajo)
+*.dwg
+*.bak
+*.dwt
+*.sv$
+*.ac$
+*.err
+*.log
+*.tmp
+
+## Sistema operativo (Windows)
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/

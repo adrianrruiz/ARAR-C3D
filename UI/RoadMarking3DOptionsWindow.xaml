@@ -1,0 +1,32 @@
+<Window x:Class="ARAR.Civil3D.UI.RoadMarking3DOptionsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Marca vial 3D" SizeToContent="WidthAndHeight" MinWidth="430"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" Background="#FFF3F5F7">
+  <Grid Margin="14">
+    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="220"/><ColumnDefinition Width="170"/></Grid.ColumnDefinitions>
+    <TextBlock Text="Superficie TIN:" VerticalAlignment="Center" Margin="4"/>
+    <ComboBox x:Name="SurfaceCombo" Grid.Column="1" Margin="4" DisplayMemberPath="Name"/>
+    <TextBlock Grid.Row="1" Text="Tipo de marca:" VerticalAlignment="Center" Margin="4"/>
+    <ComboBox x:Name="LinetypeCombo" Grid.Row="1" Grid.Column="1" Margin="4" SelectionChanged="LinetypeCombo_SelectionChanged">
+      <ComboBoxItem Content="Continua" Tag="Continuous"/><ComboBoxItem Content="Discontinua" Tag="Dashed"/>
+    </ComboBox>
+    <TextBlock Grid.Row="2" Text="Ancho (m):" VerticalAlignment="Center" Margin="4"/>
+    <TextBox x:Name="WidthText" Grid.Row="2" Grid.Column="1" Margin="4" IsReadOnly="True"/>
+    <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Margin="0,6,0,0">
+      <TextBlock x:Name="HeightText" Text="Alto: 0.010 m" Margin="4"/>
+      <TextBlock x:Name="DashLabel" Text="Longitud de raya (m):" Margin="4,3" Visibility="Collapsed"/>
+      <TextBox x:Name="DashText" Text="4.00" Margin="4" Visibility="Collapsed"/>
+      <TextBlock x:Name="GapLabel" Text="Espacio entre rayas (m):" Margin="4,3" Visibility="Collapsed"/>
+      <TextBox x:Name="GapText" Text="3.00" Margin="4" Visibility="Collapsed"/>
+      <CheckBox x:Name="KeepIntermediateBox" Content="Conservar polilínea 3D intermedia" Margin="4,6,4,2"/>
+      <CheckBox x:Name="ReverseBox" Content="Invertir sentido del patrón" Margin="4,2"/>
+      <TextBlock x:Name="ValidationText" Foreground="#FFB3261E" TextWrapping="Wrap" MinHeight="20" Margin="4,6"/>
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="4,4,0,0">
+        <Button Content="Aceptar" Width="95" IsDefault="True" Margin="0,0,8,0" Click="AcceptButton_Click"/>
+        <Button Content="Cancelar" Width="95" IsCancel="True"/>
+      </StackPanel>
+    </StackPanel>
+  </Grid>
+</Window>
