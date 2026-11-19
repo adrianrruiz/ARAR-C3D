@@ -28,7 +28,7 @@ public sealed class AlignmentPointsTableTool : ToolBase
     public override string Description => "Genera una tabla estática con coordenadas, distancias y orientaciones de una alineación.";
     public override string Tooltip => "Crea una tabla de puntos, distancias rectas y rumbos por PK.";
     public override string CommandName => "ARARTABLAPUNTOS";
-    public override string IconResourceKey => "DefaultIcon";
+    public override string IconResourceKey => "AlignmentPointsTableIcon";
     public override int Order => 10;
 
     protected override void ExecuteCore()

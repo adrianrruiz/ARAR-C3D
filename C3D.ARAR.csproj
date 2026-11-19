@@ -34,14 +34,14 @@
     <EmbeddedResource Include="Resources\RoadMarking32.png" LogicalName="ARAR.Civil3D.Resources.RoadMarking32.png" />
     <EmbeddedResource Include="Resources\RoadMarking3D16.png" LogicalName="ARAR.Civil3D.Resources.RoadMarking3D16.png" />
     <EmbeddedResource Include="Resources\RoadMarking3D32.png" LogicalName="ARAR.Civil3D.Resources.RoadMarking3D32.png" />
-    <EmbeddedResource Include="Resources\Icons\01_acerca_de_ARAR-C3D.png" LogicalName="ARAR.Civil3D.Resources.Icons.01_acerca_de_ARAR-C3D.png" />
-    <EmbeddedResource Include="Resources\Icons\02_informacion_del_dibujo.png" LogicalName="ARAR.Civil3D.Resources.Icons.02_informacion_del_dibujo.png" />
-    <EmbeddedResource Include="Resources\Icons\03_dibujar_marca_vial.png" LogicalName="ARAR.Civil3D.Resources.Icons.03_dibujar_marca_vial.png" />
-    <EmbeddedResource Include="Resources\Icons\04_marca_vial_3D.png" LogicalName="ARAR.Civil3D.Resources.Icons.04_marca_vial_3D.png" />
-    <EmbeddedResource Include="Resources\Icons\05_subir_solidos_a_superficie.png" LogicalName="ARAR.Civil3D.Resources.Icons.05_subir_solidos_a_superficie.png" />
-    <EmbeddedResource Include="Resources\Icons\06_cebreado.png" LogicalName="ARAR.Civil3D.Resources.Icons.06_cebreado.png" />
-    <EmbeddedResource Include="Resources\Icons\07_visor_de_secciones.png" LogicalName="ARAR.Civil3D.Resources.Icons.07_visor_de_secciones.png" />
-    <EmbeddedResource Include="Resources\Icons\tabla_volumenes.png" LogicalName="ARAR.Civil3D.Resources.Icons.tabla_volumenes.png" />
-    <EmbeddedResource Include="Resources\Icons\exportar_excel.png" LogicalName="ARAR.Civil3D.Resources.Icons.exportar_excel.png" />
+    <EmbeddedResource Include="Resources\Icons\01_acerca_de.png" LogicalName="ARAR.Civil3D.Resources.Icons.01_acerca_de.png" />
+    <EmbeddedResource Include="Resources\Icons\02_tabla_volumenes.png" LogicalName="ARAR.Civil3D.Resources.Icons.02_tabla_volumenes.png" />
+    <EmbeddedResource Include="Resources\Icons\03_exportar_excel.png" LogicalName="ARAR.Civil3D.Resources.Icons.03_exportar_excel.png" />
+    <EmbeddedResource Include="Resources\Icons\04_dibujar_marca_vial.png" LogicalName="ARAR.Civil3D.Resources.Icons.04_dibujar_marca_vial.png" />
+    <EmbeddedResource Include="Resources\Icons\05_marca_vial_3D.png" LogicalName="ARAR.Civil3D.Resources.Icons.05_marca_vial_3D.png" />
+    <EmbeddedResource Include="Resources\Icons\06_subir_solidos_a_superficie.png" LogicalName="ARAR.Civil3D.Resources.Icons.06_subir_solidos_a_superficie.png" />
+    <EmbeddedResource Include="Resources\Icons\07_cebreado.png" LogicalName="ARAR.Civil3D.Resources.Icons.07_cebreado.png" />
+    <EmbeddedResource Include="Resources\Icons\08_tabla_puntos_alineacion.png" LogicalName="ARAR.Civil3D.Resources.Icons.08_tabla_puntos_alineacion.png" />
+    <EmbeddedResource Include="Resources\Icons\09_visor_de_secciones.png" LogicalName="ARAR.Civil3D.Resources.Icons.09_visor_de_secciones.png" />
   </ItemGroup>
 </Project>

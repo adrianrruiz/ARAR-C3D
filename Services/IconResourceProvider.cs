@@ -45,15 +45,15 @@ public static class IconResourceProvider
     {
         string? iconName = resourceKey switch
         {
-            "AboutIcon" => "01_acerca_de_ARAR-C3D",
-            "DrawingInfoIcon" => "02_informacion_del_dibujo",
-            "DrawRoadMarkingIcon" => "03_dibujar_marca_vial",
-            "RoadMarking3DIcon" => "04_marca_vial_3D",
-            "LiftSolidsIcon" => "05_subir_solidos_a_superficie",
-            "CebreadoIcon" => "06_cebreado",
-            "SectionViewerIcon" => "07_visor_de_secciones",
-            "VolumeTableIcon" => "tabla_volumenes",
-            "ExportTablesIcon" => "exportar_excel",
+            "AboutIcon" => "01_acerca_de",
+            "VolumeTableIcon" => "02_tabla_volumenes",
+            "ExportTablesIcon" => "03_exportar_excel",
+            "DrawRoadMarkingIcon" => "04_dibujar_marca_vial",
+            "RoadMarking3DIcon" => "05_marca_vial_3D",
+            "LiftSolidsIcon" => "06_subir_solidos_a_superficie",
+            "CebreadoIcon" => "07_cebreado",
+            "AlignmentPointsTableIcon" => "08_tabla_puntos_alineacion",
+            "SectionViewerIcon" => "09_visor_de_secciones",
             _ => null
         };
         if (iconName is null) return null;
