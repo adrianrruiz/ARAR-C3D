@@ -4,7 +4,10 @@ using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.Runtime;
 using Autodesk.Civil.DatabaseServices;
 using ARAR.Civil3D.Core;
+using ARAR.Civil3D.Models;
 using ARAR.Civil3D.Services;
+using ARAR.Civil3D.UI;
+using AcadUiApplication = Autodesk.AutoCAD.ApplicationServices.Application;
 using AcException = Autodesk.AutoCAD.Runtime.Exception;
 
 namespace ARAR.Civil3D.Tools;
@@ -49,11 +52,33 @@ public sealed class LiftSolidsToSurfaceTool : ToolBase
             return;
         }
 
-        var surfaceOptions = new PromptEntityOptions("\nSeleccione la superficie TIN de destino: ");
-        surfaceOptions.SetRejectMessage("\nEl objeto seleccionado no es una superficie TIN.");
-        surfaceOptions.AddAllowedClass(typeof(TinSurface), exactMatch: false);
-        PromptEntityResult surfaceResult = document.Editor.GetEntity(surfaceOptions);
-        if (surfaceResult.Status != PromptStatus.OK)
+        IReadOnlyList<RoadSurfaceChoice> surfaces = _service.GetTinSurfaces(document);
+        var surfaceDialog = new SelectSurfaceWindow(surfaces);
+        if (AcadUiApplication.ShowModalWindow(surfaceDialog) != true)
+        {
+            WriteMessage("Operación cancelada; no se modificó el dibujo.");
+            return;
+        }
+
+        ObjectId targetSurfaceId;
+        if (surfaceDialog.SelectManually)
+        {
+            var surfaceOptions = new PromptEntityOptions("\nSeleccione la superficie TIN de destino: ");
+            surfaceOptions.SetRejectMessage("\nEl objeto seleccionado no es una superficie TIN.");
+            surfaceOptions.AddAllowedClass(typeof(TinSurface), exactMatch: false);
+            PromptEntityResult surfaceResult = document.Editor.GetEntity(surfaceOptions);
+            if (surfaceResult.Status != PromptStatus.OK)
+            {
+                WriteMessage("No se seleccionó una superficie; no se modificó el dibujo.");
+                return;
+            }
+            targetSurfaceId = surfaceResult.ObjectId;
+        }
+        else if (surfaceDialog.SelectedSurface is RoadSurfaceChoice selectedSurface)
+        {
+            targetSurfaceId = selectedSurface.Id;
+        }
+        else
         {
             WriteMessage("No se seleccionó una superficie; no se modificó el dibujo.");
             return;
@@ -64,7 +89,7 @@ public sealed class LiftSolidsToSurfaceTool : ToolBase
             SolidSurfaceMoveResult result = _service.LiftToSurface(
                 document,
                 selection.Value.GetObjectIds(),
-                surfaceResult.ObjectId);
+                targetSurfaceId);
 
             WriteMessage($"Sólidos elevados: {result.Lifted}; ya estaban a esa cota o por encima: {result.AlreadyAtOrAbove}; omitidos: {result.Skipped}.");
             foreach (string message in result.Messages)

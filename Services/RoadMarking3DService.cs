@@ -306,7 +306,12 @@ public sealed class RoadMarking3DService
         {
             try
             {
-                elevations.Add(surface.FindElevationAtXY(point.X, point.Y));
+                double elevation = surface.FindElevationAtXY(point.X, point.Y);
+                elevations.Add(double.IsFinite(elevation) ? elevation : null);
+            }
+            catch (PointNotOnEntityException)
+            {
+                elevations.Add(null);
             }
             catch (AcException)
             {
@@ -344,8 +349,22 @@ public sealed class RoadMarking3DService
 
         var output = new List<TrajectoryRun>(planRuns.Count);
         foreach (TrajectoryRun planRun in planRuns)
-            output.Add(new TrajectoryRun(CreateSurfaceDrapedFeatureLine(document, transaction, planRun.Points, surface, space),
-                planRun.StartDistanceMeters));
+        {
+            List<Point3d> drapedPoints;
+            try
+            {
+                drapedPoints = CreateSurfaceDrapedFeatureLine(document, transaction, planRun.Points, surface, space);
+            }
+            catch (PointNotOnEntityException)
+            {
+                drapedPoints = new List<Point3d>(planRun.Points);
+            }
+            catch (AcException)
+            {
+                drapedPoints = new List<Point3d>(planRun.Points);
+            }
+            output.Add(new TrajectoryRun(drapedPoints, planRun.StartDistanceMeters));
+        }
         return output;
     }
 
@@ -619,19 +638,37 @@ public sealed class RoadMarking3DService
         if (!settings.Dashed)
             return DashPattern.ComputeContinuous(totalLengthMeters);
 
+        double dashMeters = settings.DashMeters;
+        double gapMeters = settings.GapMeters;
+
+        if (TryReadEffectiveLinetypePattern(source, transaction, database, out double effectiveDash, out double effectiveGap))
+        {
+            dashMeters = effectiveDash;
+            gapMeters = effectiveGap;
+        }
+
+        return ComputeCenteredIntervalsForEntity(source, database, totalLengthMeters, dashMeters, gapMeters);
+    }
+
+    private static bool TryReadEffectiveLinetypePattern(Entity source, Transaction transaction, Database database,
+        out double dashMeters, out double gapMeters)
+    {
+        dashMeters = 0;
+        gapMeters = 0;
+
         ObjectId lineTypeId = source.LinetypeId;
         if (lineTypeId.IsNull || lineTypeId.IsErased)
-            return DashPattern.Compute(totalLengthMeters, settings.DashMeters, settings.GapMeters, MinimumDashMeters);
+            return false;
 
         if (transaction.GetObject(lineTypeId, OpenMode.ForRead, false) is not LinetypeTableRecord selectedLineType)
-            return DashPattern.Compute(totalLengthMeters, settings.DashMeters, settings.GapMeters, MinimumDashMeters);
+            return false;
         if (selectedLineType.Name.Equals("ByLayer", StringComparison.OrdinalIgnoreCase) &&
             transaction.GetObject(source.LayerId, OpenMode.ForRead, false) is LayerTableRecord layer)
             lineTypeId = layer.LinetypeObjectId;
 
         if (transaction.GetObject(lineTypeId, OpenMode.ForRead, false) is not LinetypeTableRecord lineType ||
             lineType.NumDashes != 2 || lineType.DashLengthAt(0) <= 0 || lineType.DashLengthAt(1) >= 0)
-            return DashPattern.Compute(totalLengthMeters, settings.DashMeters, settings.GapMeters, MinimumDashMeters);
+            return false;
 
         // Los sólidos siguen el patrón efectivo de la entidad seleccionada, incluyendo
         // LTSCALE y, en la pestaña Modelo, el factor que aplica MSLTSCALE.
@@ -650,19 +687,61 @@ public sealed class RoadMarking3DService
             double annotationScale = Convert.ToDouble(
                 Autodesk.AutoCAD.ApplicationServices.Core.Application.GetSystemVariable("CANNOSCALEVALUE"),
                 CultureInfo.InvariantCulture);
-            displayScale *= annotationScale;
+            if (double.IsFinite(annotationScale) && annotationScale > 1e-12)
+                displayScale /= annotationScale;
         }
 
         double drawingUnitsPerMeter = DrawingUnitService.MetersToDrawingUnits(database, 1.0);
         if (!double.IsFinite(displayScale) || displayScale <= 0 || drawingUnitsPerMeter <= 0)
-            return DashPattern.Compute(totalLengthMeters, settings.DashMeters, settings.GapMeters, MinimumDashMeters);
+            return false;
 
-        double dashMeters = lineType.DashLengthAt(0) * displayScale / drawingUnitsPerMeter;
-        double gapMeters = -lineType.DashLengthAt(1) * displayScale / drawingUnitsPerMeter;
-        if (!double.IsFinite(dashMeters) || !double.IsFinite(gapMeters) || dashMeters <= 0 || gapMeters < 0)
-            return DashPattern.Compute(totalLengthMeters, settings.DashMeters, settings.GapMeters, MinimumDashMeters);
+        double dash = lineType.DashLengthAt(0) * displayScale / drawingUnitsPerMeter;
+        double gap = -lineType.DashLengthAt(1) * displayScale / drawingUnitsPerMeter;
+        if (!double.IsFinite(dash) || !double.IsFinite(gap) || dash <= 0 || gap < 0)
+            return false;
 
-        return DashPattern.Compute(totalLengthMeters, dashMeters, gapMeters, MinimumDashMeters);
+        dashMeters = dash;
+        gapMeters = gap;
+        return true;
+    }
+
+    private static IReadOnlyList<DistanceInterval> ComputeCenteredIntervalsForEntity(
+        Entity source, Database database, double totalLengthMeters, double dashMeters, double gapMeters)
+    {
+        // Si es una polilínea 2D con Plinegen = false, AutoCAD centra el patrón
+        // independientemente en cada segmento entre vértices.
+        if (source is Polyline polyline && !polyline.Plinegen && polyline.NumberOfVertices >= 2)
+        {
+            double drawingUnitsPerMeter = DrawingUnitService.MetersToDrawingUnits(database, 1.0);
+            int segmentCount = polyline.Closed ? polyline.NumberOfVertices : polyline.NumberOfVertices - 1;
+            var intervals = new List<DistanceInterval>();
+            double accumulated = 0.0;
+
+            for (int i = 0; i < segmentCount; i++)
+            {
+                double startDist = polyline.GetDistanceAtParameter(i);
+                double endDist = polyline.GetDistanceAtParameter(i + 1);
+                double segLengthMeters = Math.Max(0.0, (endDist - startDist) / drawingUnitsPerMeter);
+                if (segLengthMeters > 1e-9)
+                {
+                    IReadOnlyList<DistanceInterval> segIntervals = DashPattern.ComputeAutoCadCentered(
+                        segLengthMeters, dashMeters, gapMeters, MinimumDashMeters);
+                    foreach (DistanceInterval segInterval in segIntervals)
+                    {
+                        double start = accumulated + segInterval.Start;
+                        double end = Math.Min(totalLengthMeters, accumulated + segInterval.End);
+                        if (end - start + 1e-9 >= MinimumDashMeters)
+                            intervals.Add(new DistanceInterval(start, end));
+                    }
+                    accumulated += segLengthMeters;
+                }
+            }
+
+            if (intervals.Count > 0)
+                return intervals;
+        }
+
+        return DashPattern.ComputeAutoCadCentered(totalLengthMeters, dashMeters, gapMeters, MinimumDashMeters);
     }
 
     private static double DistanceToSegment(Point3d point, Point3d a, Point3d b)

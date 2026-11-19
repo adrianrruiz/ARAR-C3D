@@ -30,4 +30,31 @@ public sealed class DashPatternTests
     [Fact]
     public void ComputeContinuous_ReturnsOneFullInterval() =>
         Assert.Equal(new DistanceInterval(0, 14.1), Assert.Single(DashPattern.ComputeContinuous(14.1)));
+
+    [Fact]
+    public void ComputeAutoCadCentered_MatchesSymmetricAutoCadLinetypeLayout()
+    {
+        // L = 20 m, dash = 3 m, gap = 3 m (period = 6 m) -> 3 gaps, endDash = (3 + 2) / 2 = 2.5 m
+        IReadOnlyList<DistanceInterval> intervals = DashPattern.ComputeAutoCadCentered(20.0, 3.0, 3.0, 0.10);
+
+        Assert.Equal(4, intervals.Count);
+        Assert.Equal(0.0, intervals[0].Start, 8);
+        Assert.Equal(2.5, intervals[0].End, 8);
+        Assert.Equal(5.5, intervals[1].Start, 8);
+        Assert.Equal(8.5, intervals[1].End, 8);
+        Assert.Equal(11.5, intervals[2].Start, 8);
+        Assert.Equal(14.5, intervals[2].End, 8);
+        Assert.Equal(17.5, intervals[3].Start, 8);
+        Assert.Equal(20.0, intervals[3].End, 8);
+        Assert.Equal(intervals[0].Length, intervals[^1].Length, 8);
+    }
+
+    [Fact]
+    public void ComputeAutoCadCentered_ShorterThanOnePeriod_ReturnsContinuousSolid()
+    {
+        IReadOnlyList<DistanceInterval> intervals = DashPattern.ComputeAutoCadCentered(5.5, 3.0, 3.0, 0.10);
+        DistanceInterval single = Assert.Single(intervals);
+        Assert.Equal(0.0, single.Start, 8);
+        Assert.Equal(5.5, single.End, 8);
+    }
 }

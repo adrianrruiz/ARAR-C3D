@@ -1,7 +1,10 @@
 using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Geometry;
+using Autodesk.Civil;
+using Autodesk.Civil.ApplicationServices;
 using Autodesk.Civil.DatabaseServices;
+using ARAR.Civil3D.Models;
 using AcException = Autodesk.AutoCAD.Runtime.Exception;
 
 namespace ARAR.Civil3D.Services;
@@ -18,6 +21,24 @@ public sealed class SolidSurfaceService
     private const double ElevationTolerance = 1e-8;
 
     private sealed record PendingMove(ObjectId SolidId, double DeltaZ, string Handle);
+
+    public IReadOnlyList<RoadSurfaceChoice> GetTinSurfaces(Document document)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+        var surfaces = new List<RoadSurfaceChoice>();
+        CivilDocument civilDocument = CivilApplication.ActiveDocument;
+        if (civilDocument is null)
+            return surfaces;
+
+        using Transaction transaction = document.Database.TransactionManager.StartTransaction();
+        foreach (ObjectId surfaceId in civilDocument.GetSurfaceIds())
+        {
+            if (transaction.GetObject(surfaceId, OpenMode.ForRead, false) is TinSurface surface)
+                surfaces.Add(new RoadSurfaceChoice(surfaceId, surface.Name));
+        }
+        transaction.Commit();
+        return surfaces.OrderBy(s => s.Name, StringComparer.CurrentCultureIgnoreCase).ToArray();
+    }
 
     /// <summary>
     /// Toma como apoyo el punto (centro XY de los límites geométricos, cota Z mínima).
@@ -79,6 +100,12 @@ public sealed class SolidSurfaceService
                 }
 
                 pendingMoves.Add(new PendingMove(solidId, deltaZ, solid.Handle.ToString()));
+            }
+            catch (PointNotOnEntityException ex)
+            {
+                skipped++;
+                AddinLogger.Error($"Punto base fuera de la superficie para el sólido {solid.Handle}.", ex);
+                messages.Add($"Sólido {solid.Handle}: el punto base está fuera de la superficie.");
             }
             catch (AcException ex)
             {

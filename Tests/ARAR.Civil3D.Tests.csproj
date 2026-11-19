@@ -12,6 +12,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="VolumeTableRegressionRunner\**\*.cs" />
     <Compile Include="..\Models\DashPattern.cs" Link="Models\DashPattern.cs" />
     <Compile Include="..\Services\VolumeTableTextFormat.cs" Link="Services\VolumeTableTextFormat.cs" />
   </ItemGroup>
